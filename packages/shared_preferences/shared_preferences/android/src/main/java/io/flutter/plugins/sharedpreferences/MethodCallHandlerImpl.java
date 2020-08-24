@@ -37,18 +37,31 @@ class MethodCallHandlerImpl implements MethodChannel.MethodCallHandler {
   private static final String DOUBLE_PREFIX = "VGhpcyBpcyB0aGUgcHJlZml4IGZvciBEb3VibGUu";
 
   private final android.content.SharedPreferences preferences;
+  Context context;
 
   /**
    * Constructs a {@link MethodCallHandlerImpl} instance. Creates a {@link
    * android.content.SharedPreferences} based on the {@code context}.
    */
   MethodCallHandlerImpl(Context context) {
+    this.context = context;
     preferences = context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+  }
+
+  private SharedPreferences updateInstanceSharedPref(String nameSharedPref){
+    if(SHARED_PREFERENCES_NAME != nameSharedPref) {
+      SHARED_PREFERENCES_NAME = nameSharedPref;
+      preferences = context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+    }
   }
 
   @Override
   public void onMethodCall(MethodCall call, MethodChannel.Result result) {
     String key = call.argument("key");
+    String nameSharedPref = call.argument("nameSharedPref");
+
+    updateInstanceSharedPref(nameSharedPref);
+
     try {
       switch (call.method) {
         case "setBool":
@@ -94,6 +107,7 @@ class MethodCallHandlerImpl implements MethodChannel.MethodCallHandler {
           result.success(true);
           break;
         case "getAll":
+          String = call.argument("getAll");
           result.success(getAllPrefs());
           return;
         case "remove":

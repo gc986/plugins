@@ -22,6 +22,7 @@ class SharedPreferences {
   static const String _prefix = 'flutter.';
   static Completer<SharedPreferences> _completer;
   static bool _manualDartRegistrationNeeded = true;
+  static String nameSharedPref = "nameSharedPref";
 
   static SharedPreferencesStorePlatform get _store {
     // This is to manually endorse the Linux implementation until automatic
@@ -46,7 +47,9 @@ class SharedPreferences {
   ///
   /// Because this is reading from disk, it shouldn't be awaited in
   /// performance-sensitive blocks.
-  static Future<SharedPreferences> getInstance() async {
+  static Future<SharedPreferences> getInstance(
+      {String nameSharedPref = "sharedPrefFileName"}) async {
+    SharedPreferences.nameSharedPref = nameSharedPref;
     if (_completer == null) {
       _completer = Completer<SharedPreferences>();
       try {
@@ -157,7 +160,7 @@ class SharedPreferences {
       } else {
         _preferenceCache[key] = value;
       }
-      return _store.setValue(valueType, prefixedKey, value);
+      return _store.setValue(valueType, prefixedKey, value, nameSharedPref);
     }
   }
 
@@ -184,7 +187,7 @@ class SharedPreferences {
   }
 
   static Future<Map<String, Object>> _getSharedPreferencesMap() async {
-    final Map<String, Object> fromSystem = await _store.getAll();
+    final Map<String, Object> fromSystem = await _store.getAll(nameSharedPref);
     assert(fromSystem != null);
     // Strip the flutter. prefix from the returned preferences.
     final Map<String, Object> preferencesMap = <String, Object>{};
